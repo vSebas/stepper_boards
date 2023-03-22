@@ -1,0 +1,8 @@
+../Core/Src/CAN/can_tasks.c:51:13:can_hb_tx_task	16	static
+../Core/Src/CAN/can_tasks.c:85:6:can_init	48	static
+../Core/Src/CAN/can_tasks.c:114:6:can_tx_task	16	static
+../Core/Src/CAN/can_tasks.c:122:6:can_tx_update	56	static
+../Core/Src/CAN/can_tasks.c:140:6:can_rx_task	16	static
+../Core/Src/CAN/can_tasks.c:147:6:can_rx_update	48	static
+../Core/Src/CAN/can_tasks.c:165:13:can_send_ping_task	16	static
+../Core/Src/CAN/can_tasks.c:207:6:start_can_tasks	8	static

@@ -49,34 +49,6 @@ TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
 
-/* Definitions for canRxTask */
-osThreadId_t canRxTaskHandle;
-const osThreadAttr_t canRxTask_attributes = {
-  .name = "canRxTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal,
-};
-/* Definitions for canTxTask */
-osThreadId_t canTxTaskHandle;
-const osThreadAttr_t canTxTask_attributes = {
-  .name = "canTxTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
-};
-/* Definitions for steeringTask */
-osThreadId_t steeringTaskHandle;
-const osThreadAttr_t steeringTask_attributes = {
-  .name = "steeringTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal4,
-};
-/* Definitions for brakingTask */
-osThreadId_t brakingTaskHandle;
-const osThreadAttr_t brakingTask_attributes = {
-  .name = "brakingTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -158,19 +130,6 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* creation of canRxTask */
-  canRxTaskHandle = osThreadNew(can_rx_task, NULL, &canRxTask_attributes);
-
-  /* creation of canTxTask */
-  canTxTaskHandle = osThreadNew(can_tx_task, NULL, &canTxTask_attributes);
-
-  /* creation of steeringTask */
-  steeringTaskHandle = osThreadNew(steering_task, NULL, &steeringTask_attributes);
-
-  /* creation of brakingTask */
-  brakingTaskHandle = osThreadNew(braking_task, NULL, &brakingTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -594,78 +553,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_can_rx_task */
-/**
-  * @brief  Function implementing the canRxTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_can_rx_task */
-void can_rx_task(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_can_tx_task */
-/**
-* @brief Function implementing the canTxTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_can_tx_task */
-void can_tx_task(void *argument)
-{
-  /* USER CODE BEGIN can_tx_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END can_tx_task */
-}
-
-/* USER CODE BEGIN Header_steering_task */
-/**
-* @brief Function implementing the steeringTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_steering_task */
-void steering_task(void *argument)
-{
-  /* USER CODE BEGIN steering_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END steering_task */
-}
-
-/* USER CODE BEGIN Header_braking_task */
-/**
-* @brief Function implementing the brakingTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_braking_task */
-void braking_task(void *argument)
-{
-  /* USER CODE BEGIN braking_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END braking_task */
-}
 
 /**
   * @brief  Period elapsed callback in non blocking mode
