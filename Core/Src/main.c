@@ -49,7 +49,6 @@ TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
 
-
 /* Definitions for steeringTask */
 osThreadId_t steeringTaskHandle;
 const osThreadAttr_t steeringTask_attributes = {
@@ -76,8 +75,6 @@ static void MX_TIM2_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
-void can_rx_task(void *argument);
-void can_tx_task(void *argument);
 void steering_task(void *argument);
 void braking_task(void *argument);
 
@@ -156,7 +153,6 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-
   /* creation of steeringTask */
   steeringTaskHandle = osThreadNew(steering_task, NULL, &steeringTask_attributes);
 
@@ -429,9 +425,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 80-1;
+  htim2.Init.Prescaler = 8000-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 100-1 ;
+  htim2.Init.Period = 10000-1 ;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -454,7 +450,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 5000;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)

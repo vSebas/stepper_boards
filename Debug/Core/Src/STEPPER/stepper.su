@@ -1,5 +1,5 @@
 ../Core/Src/STEPPER/stepper.c:8:6:configure_steppers	8	static
-../Core/Src/STEPPER/stepper.c:29:6:set_setpoint	16	static
-../Core/Src/STEPPER/stepper.c:42:6:steer	4	static
-../Core/Src/STEPPER/stepper.c:54:6:brake	8	static
-../Core/Src/STEPPER/stepper.c:65:6:HAL_TIM_PWM_PulseFinishedCallback	16	static
+../Core/Src/STEPPER/stepper.c:31:6:set_setpoint	16	static
+../Core/Src/STEPPER/stepper.c:44:6:steer	4	static
+../Core/Src/STEPPER/stepper.c:56:6:brake	8	static
+../Core/Src/STEPPER/stepper.c:67:6:HAL_TIM_PWM_PulseFinishedCallback	16	static

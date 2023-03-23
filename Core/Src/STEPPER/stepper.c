@@ -22,7 +22,9 @@ void configure_steppers()
 	HAL_GPIO_WritePin(GPIOB, LVL_SFTR_OE_2_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(LVL_SFTR_OE_1_GPIO_Port, LVL_SFTR_OE_1_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOC, STPR_DIR_1_Pin, GPIO_PIN_SET);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+	htim2.Instance->CCR1 = 5000;
+	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+	//HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin|STPR_PWM_1_Pin, GPIO_PIN_SET);
 
 }
 
@@ -64,11 +66,12 @@ void brake()
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim->Instance == TIM1) {
 	steering_stepper.current_step++;
-  }
+
   if (htim->Instance == TIM2) {
 	braking_stepper.current_step++;
+	//steering_stepper.current_step++;
+	HAL_GPIO_TogglePin(GPIOA, DEBUG_2_Pin);
   }
 }
 
