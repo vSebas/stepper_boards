@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "STEPPER/stepper.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +49,21 @@ TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
 
+
+/* Definitions for steeringTask */
+osThreadId_t steeringTaskHandle;
+const osThreadAttr_t steeringTask_attributes = {
+  .name = "steeringTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal4,
+};
+/* Definitions for brakingTask */
+osThreadId_t brakingTaskHandle;
+const osThreadAttr_t brakingTask_attributes = {
+  .name = "brakingTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -109,6 +124,15 @@ int main(void)
   MX_ADC1_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
+  configure_steppers();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, DEBUG_6_Pin|DEBUG_5_Pin|DEBUG_4_Pin|DEBUG_3_Pin
+                          |STPR_EN_1_Pin|STPR_DIR_1_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin, GPIO_PIN_SET);
+
 
   /* USER CODE END 2 */
 
@@ -130,6 +154,14 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+
+  /* creation of steeringTask */
+  steeringTaskHandle = osThreadNew(steering_task, NULL, &steeringTask_attributes);
+
+  /* creation of brakingTask */
+  brakingTaskHandle = osThreadNew(braking_task, NULL, &brakingTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -318,9 +350,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 80-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = 100-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -553,6 +585,43 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_steering_task */
+/**
+* @brief Function implementing the steeringTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_steering_task */
+void steering_task(void *argument)
+{
+  /* USER CODE BEGIN steering_task */
+  /* Infinite loop */
+  for(;;)
+  {
+	  steer();
+	  osDelay(1);
+  }
+  /* USER CODE END steering_task */
+}
+
+/* USER CODE BEGIN Header_braking_task */
+/**
+* @brief Function implementing the brakingTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_braking_task */
+void braking_task(void *argument)
+{
+  /* USER CODE BEGIN braking_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END braking_task */
+}
 
 /**
   * @brief  Period elapsed callback in non blocking mode

@@ -5,13 +5,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Core/Src/STEPPER/stepper_tasks.c 
+../Core/Src/STEPPER/stepper.c 
 
 OBJS += \
-./Core/Src/STEPPER/stepper_tasks.o 
+./Core/Src/STEPPER/stepper.o 
 
 C_DEPS += \
-./Core/Src/STEPPER/stepper_tasks.d 
+./Core/Src/STEPPER/stepper.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -21,7 +21,7 @@ Core/Src/STEPPER/%.o Core/Src/STEPPER/%.su: ../Core/Src/STEPPER/%.c Core/Src/STE
 clean: clean-Core-2f-Src-2f-STEPPER
 
 clean-Core-2f-Src-2f-STEPPER:
-	-$(RM) ./Core/Src/STEPPER/stepper_tasks.d ./Core/Src/STEPPER/stepper_tasks.o ./Core/Src/STEPPER/stepper_tasks.su
+	-$(RM) ./Core/Src/STEPPER/stepper.d ./Core/Src/STEPPER/stepper.o ./Core/Src/STEPPER/stepper.su
 
 .PHONY: clean-Core-2f-Src-2f-STEPPER
 
