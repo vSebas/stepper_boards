@@ -37,7 +37,10 @@ extern "C" {
 #endif
 
 typedef struct {
-	float motorSetpoints[2];	// Degrees
+	uint16_t motor_1_steps;	// Steps
+	uint16_t motor_2_steps;	// Steps
+	uint8_t motor_1_direction;
+	uint8_t motor_2_direction;
 	float encoderAngle[2];		// Degrees
 	uint32_t jetsonHBTick;
 } can_rx;

@@ -7,71 +7,121 @@ volatile stepper steering_stepper;
 
 void configure_steppers()
 {
+	/*
 	steering_stepper.MAX_ANGLE = 57;
-	steering_stepper.STEP_ANGLE = 1.8;
-	steering_stepper.STEPS_REV = 200;
+	steering_stepper.STEP_ANGLE = 0.9;
+	steering_stepper.MAX_STEPS = 63;		// Corresponding to the 57 deg
+	steering_stepper.STEPS_REV = 400;
+	*/
 	steering_stepper.current_step = 0;
 
+	/*
 	braking_stepper.MAX_ANGLE = 1;			// TBD
 	braking_stepper.STEP_ANGLE = 1.8;		// TBD
+	steering_stepper.MAX_STEPS = 63;		// TBD
 	braking_stepper.STEPS_REV = 200;		// TBD
+	*/
 	braking_stepper.current_step = 0;
 
 	HAL_GPIO_WritePin(GPIOC, STPR_EN_1_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOB, STPR_EN_2_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOB, LVL_SFTR_OE_2_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB, STPR_EN_2_Pin | LVL_SFTR_OE_2_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(LVL_SFTR_OE_1_GPIO_Port, LVL_SFTR_OE_1_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOC, STPR_DIR_1_Pin, GPIO_PIN_SET);
-	htim2.Instance->CCR1 = 5000;
-	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+
+	//htim2.Instance->CCR1 = 5000;	// For duty cycle of 50%
+	htim2.Instance->CCR1 = 500;	// For duty cycle of 50%
 	//HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin|STPR_PWM_1_Pin, GPIO_PIN_SET);
 
 }
 
-void set_setpoint(const stepper_id stepper, float setpoint, int8_t direction){
-	if(stepper == STEERING)
+void set_setpoint(const stepper_id stepper, uint16_t setpoint, int8_t direction){
+	switch(stepper)
 	{
-		//steering_stepper.desired_angle = setpoint;
-		steering_stepper.req_steps = setpoint;
-		steering_stepper.direction = direction;
-	} else {
-		//braking_stepper.desired_angle = setpoint;
-		braking_stepper.req_steps = setpoint;
-		steering_stepper.direction = direction;
+		case STEERING:
+			if(steering_stepper.req_steps != setpoint || steering_stepper.direction != direction)
+			{
+				//steering_stepper.desired_angle = setpoint;
+				//if(setpoint-steering_stepper.current_step > steering_stepper.MAX_STEPS)
+				//	setpoint = steering_stepper.MAX_STEPS;
+				steering_stepper.req_steps = setpoint;
+				steering_stepper.direction = direction;
+				HAL_GPIO_WritePin(GPIOC, STPR_DIR_1_Pin, direction);
+				steering_stepper.current_step = 0;
+			}
+			break;
+		case BRAKING:
+			//braking_stepper.desired_angle = setpoint;
+			//if(setpoint > braking_stepper.MAX_STEPS)
+			//	setpoint = braking_stepper.MAX_STEPS;
+			if(braking_stepper.req_steps != setpoint || braking_stepper.direction != direction)
+			{
+				braking_stepper.req_steps = setpoint;
+				braking_stepper.direction = direction;
+				HAL_GPIO_WritePin(GPIOC, STPR_DIR_2_Pin, direction);
+				braking_stepper.current_step = 0;
+			}
+			break;
+		default:
+			break;
 	}
 }
 
+/*
+void set_setpoint(const stepper_id stepper){
+	if(stepper == STEERING)
+		{
+			//steering_stepper.desired_angle = setpoint;
+			if(setpoint > steering_stepper.MAX_STEPS)
+				setpoint = steering_stepper.MAX_STEPS;
+			steering_stepper.req_steps = setpoint;
+			steering_stepper.direction = direction;
+			steering_stepper.current_step = 0;
+			HAL_GPIO_WritePin(GPIOC, STPR_DIR_1_Pin, direction);
+		} else {
+			//braking_stepper.desired_angle = setpoint;
+			if(setpoint > braking_stepper.MAX_STEPS)
+				setpoint = braking_stepper.MAX_STEPS;
+			braking_stepper.req_steps = setpoint;
+			braking_stepper.direction = direction;
+			braking_stepper.current_step = 0;
+			HAL_GPIO_WritePin(GPIOB, STPR_DIR_2_Pin, direction);
+		}
+}
+*/
+
 void steer()
 {
-	steering_stepper.req_steps = 400;
-	steering_stepper.direction = 1;
-	//if(steering_stepper.desired_angle < can_rx_data.encoderAngle[0])
-	/*
-	if(steering_stepper.req_steps < steering_stepper.current_step)
-	else
+	//set_setpoint(STEERING, can_rx_data.motor_1_steps, can_rx_data.motor_1_direction);
+	if(steering_stepper.current_step == 0)
+		HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+	if(steering_stepper.req_steps <= steering_stepper.current_step)
+	{
 		HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
-		*/
+		HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin, GPIO_PIN_SET);
+		if(steering_stepper.direction == CW)
+			  set_setpoint(STEERING, 400, CCW);
+		else
+			  set_setpoint(STEERING, 400, CW);
+		osDelay(1000);
+	}
 }
 
 void brake()
 {
-	HAL_GPIO_WritePin(GPIOB, STPR_DIR_2_Pin, braking_stepper.direction);
 	//if(braking_stepper.desired_angle < can_rx_data.encoderAngle[1])
-	if(braking_stepper.req_steps < braking_stepper.current_step)
+	set_setpoint(BRAKING, can_rx_data.motor_2_steps, can_rx_data.motor_2_direction);
+	if(braking_stepper.current_step == 0)
 		HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_4);
-	else
+	if(braking_stepper.req_steps <= braking_stepper.current_step)
 		HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_4);
 }
 
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-	steering_stepper.current_step++;
-
   if (htim->Instance == TIM2) {
-	braking_stepper.current_step++;
-	//steering_stepper.current_step++;
-	HAL_GPIO_TogglePin(GPIOA, DEBUG_2_Pin);
+	  steering_stepper.current_step++;
+	//braking_stepper.current_step++;
+	//HAL_GPIO_TogglePin(GPIOA, DEBUG_2_Pin);
   }
 }
 
