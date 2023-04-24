@@ -19,9 +19,12 @@
 */
 #define DEBUG_LOG_ID 0x14
 
-//2 motor channels
-#define MOTOR_ID_START 0x15
-#define MOTOR_ID_END 0x17
+// Motor IDs
+#define CONTROLLER_STEERING 0x15
+#define AUTONOMOUS_STEERING 0x17
+
+#define CONTROLLER_BRAKING 0x15
+#define AUTONOMOUS_BRAKING 0x17
 
 //2 encoders
 #define ENCODER_ID_IFM 0x18
@@ -39,8 +42,8 @@ extern "C" {
 typedef struct {
 	uint16_t motor_1_steps;	// Steps
 	uint16_t motor_2_steps;	// Steps
-	uint8_t motor_1_direction;
-	uint8_t motor_2_direction;
+	int8_t motor_1_direction;
+	int8_t motor_2_direction;
 	float encoderAngle[2];		// Degrees
 	uint32_t jetsonHBTick;
 } can_rx;

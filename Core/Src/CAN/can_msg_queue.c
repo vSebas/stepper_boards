@@ -9,6 +9,8 @@
 #include "stm32l4xx_hal.h"
 #include <string.h>
 
+#include "CANLib/CANMessage.h"
+
 extern CAN_HandleTypeDef hcan2;
 
 osStatus_t handle_debug_msg_queue(){

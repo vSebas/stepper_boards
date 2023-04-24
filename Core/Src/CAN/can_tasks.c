@@ -35,6 +35,7 @@ const osThreadAttr_t canTxTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
 };
 
+/*
 static const osThreadAttr_t hbTask_attributes = {
   .name = "hbTxCan",
   .stack_size = 128 * 4,
@@ -54,6 +55,7 @@ static void can_hb_tx_task(void *param){
 		osDelay(HEARTBEAT_DELAY);
 	}
 }
+*/
 
 /*
 static const osThreadAttr_t debugVarsTask_attributes = {
@@ -83,24 +85,40 @@ static const osThreadAttr_t debugMsgTask_attributes = {
 
 
 void can_init(){
+
+	CAN_FilterTypeDef canfilterconfig;
+	canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
+	canfilterconfig.FilterBank = 10;		// Specify filter bank to use
+	canfilterconfig.FilterFIFOAssignment = CAN_FILTER_FIFO0; //Incoming data is saved here
+	canfilterconfig.FilterIdHigh = 0;//0x100<<5;//0x000<<5;
+	canfilterconfig.FilterIdLow = 0x0000;
+	canfilterconfig.FilterMaskIdHigh= 0; //0xF00<<5;//0x600<<5;
+	canfilterconfig.FilterMaskIdLow = 0x0000;
+	canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
+	canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
+	canfilterconfig.SlaveStartFilterBank = 13;
+
+/*
 	CAN_FilterTypeDef filter;
 	filter.FilterActivation = CAN_FILTER_ENABLE;
 	filter.FilterBank = 0;		// Specify filter bank to use
 	filter.FilterFIFOAssignment = CAN_FILTER_FIFO0; //Incoming data is saved here
 	filter.FilterIdHigh = 0;
-	filter.FilterIdLow = 0;
+	filter.FilterIdLow = 0;//0x123;
 	filter.FilterMaskIdHigh= 0;
-	filter.FilterMaskIdLow = 0;
+	filter.FilterMaskIdLow = 0;//0xFFFFFFFF;
 	filter.FilterMode = CAN_FILTERMODE_IDMASK;
 	filter.FilterScale = CAN_FILTERSCALE_32BIT;
 	filter.SlaveStartFilterBank = 0;
+	*/
 
-	if(HAL_CAN_ConfigFilter(&hcan1, &filter) != HAL_OK) Error_Handler();
+	if(HAL_CAN_ConfigFilter(&hcan1, &canfilterconfig) != HAL_OK) Error_Handler();
 	if(HAL_CAN_Start(&hcan1) != HAL_OK) Error_Handler();
 	if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK) Error_Handler();
 	if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK) Error_Handler();
 
 	//Initialize queues
+
 	//First char -> size
 	debugMessageQueue = osMessageQueueNew(64, 8, NULL);
 	if(debugMessageQueue == NULL)
@@ -148,20 +166,23 @@ void can_rx_update(){
 	//TODO check both FIFO?
 	CAN_RxHeaderTypeDef rxHeader;
 	uint8_t buf[8];
-	while(HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO0) != 0){
+	uint32_t fill_level0 = HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO0);
+	uint32_t fill_level1 = HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO1);
+	while(fill_level0 != 0){
 		HAL_StatusTypeDef ret = HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxHeader, buf);
 		if(ret != HAL_OK) continue;
 		//Parse can message
 		can_parse_msg(&rxHeader, buf);
 	}
-	while(HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO1) != 0){
-			HAL_StatusTypeDef ret = HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO1, &rxHeader, buf);
-			if(ret != HAL_OK) continue;
-			//Parse can message
-			can_parse_msg(&rxHeader, buf);
-		}
+	while(fill_level1 != 0){
+		HAL_StatusTypeDef ret = HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO1, &rxHeader, buf);
+		if(ret != HAL_OK) continue;
+		//Parse can message
+		can_parse_msg(&rxHeader, buf);
+	}
 }
 
+/*
 static void can_send_ping_task(void * param){
 	for(;;){
 		if(g_sendPing == 1){
@@ -171,7 +192,7 @@ static void can_send_ping_task(void * param){
 
 		osDelay(1000);
 	}
-}
+}*/
 
 /*
 extern SBUS_Data sbusData;
@@ -205,13 +226,13 @@ static void can_battery_monitor_task(void * param){
 */
 
 void start_can_tasks(){
-	osThreadNew(can_hb_tx_task, NULL, &hbTask_attributes);
-	//osThreadNew(can_sbus_tx_task, NULL, &sbusTask_attributes);
-	//osThreadNew(can_debug_msg_tx_task, NULL, &debugMsgTask_attributes);
-	osThreadNew(can_send_ping_task, NULL, &pingTask_attributes);
-	//osThreadNew(can_battery_monitor_task, NULL, &batteryTask_attributes);
-	//osThreadNew(debug_vars_task, NULL, &debugVarsTask_attributes);
 	osThreadNew(can_rx_task, NULL, &canRxTask_attributes);
 	osThreadNew(can_tx_task, NULL, &canTxTask_attributes);
+	//osThreadNew(can_hb_tx_task, NULL, &hbTask_attributes);
+	//osThreadNew(can_sbus_tx_task, NULL, &sbusTask_attributes);
+	//osThreadNew(can_debug_msg_tx_task, NULL, &debugMsgTask_attributes);
+	//osThreadNew(can_send_ping_task, NULL, &pingTask_attributes);
+	//osThreadNew(can_battery_monitor_task, NULL, &batteryTask_attributes);
+	//osThreadNew(debug_vars_task, NULL, &debugVarsTask_attributes);
 }
 

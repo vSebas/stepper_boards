@@ -33,6 +33,23 @@ void configure_steppers()
 
 }
 
+void set_direction(const stepper_id stepper, int8_t direction){
+	switch(stepper)
+	{
+		case STEERING:
+			steering_stepper.direction = direction;
+			HAL_GPIO_WritePin(GPIOC, STPR_DIR_1_Pin, direction);
+			steering_stepper.mode = CONTROLLER;
+			break;
+		case BRAKING:
+			braking_stepper.direction = direction;
+			HAL_GPIO_WritePin(GPIOC, STPR_DIR_2_Pin, direction);
+			break;
+		default:
+			break;
+	}
+}
+
 void set_setpoint(const stepper_id stepper, uint16_t setpoint, int8_t direction){
 	switch(stepper)
 	{
@@ -90,18 +107,26 @@ void set_setpoint(const stepper_id stepper){
 
 void steer()
 {
-	//set_setpoint(STEERING, can_rx_data.motor_1_steps, can_rx_data.motor_1_direction);
-	if(steering_stepper.current_step == 0)
-		HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
-	if(steering_stepper.req_steps <= steering_stepper.current_step)
-	{
-		HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
-		HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin, GPIO_PIN_SET);
-		if(steering_stepper.direction == CW)
-			  set_setpoint(STEERING, 400, CCW);
+	if(steering_stepper.mode == CONTROLLER){
+		if(steering_stepper.direction != IDLE)
+			HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
 		else
-			  set_setpoint(STEERING, 400, CW);
-		osDelay(1000);
+			HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
+	} else {
+		if(steering_stepper.current_step == 0)
+			HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+		if(steering_stepper.req_steps <= steering_stepper.current_step)
+		{
+			HAL_TIM_PWM_Stop_IT(&htim2, TIM_CHANNEL_1);
+			//HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin, GPIO_PIN_SET);
+			/*
+			if(steering_stepper.direction == CW)
+				  set_setpoint(STEERING, 400, CCW);
+			else
+				  set_setpoint(STEERING, 400, CW);
+			 */
+			//osDelay(1000);
+		}
 	}
 }
 

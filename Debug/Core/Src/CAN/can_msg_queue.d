@@ -44,7 +44,8 @@ Core/Src/CAN/can_msg_queue.o: ../Core/Src/CAN/can_msg_queue.c \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
- ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h
+ ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
+ /home/saveasmtz/Documents/embedded/vanttec_CANLib/src/CANLib/CANMessage.h
 ../Core/Inc/CAN/can_msg_queue.h:
 ../Core/Inc/CAN/can_bus.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:
@@ -92,3 +93,4 @@ Core/Src/CAN/can_msg_queue.o: ../Core/Src/CAN/can_msg_queue.c \
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
+/home/saveasmtz/Documents/embedded/vanttec_CANLib/src/CANLib/CANMessage.h:

@@ -21,11 +21,19 @@ typedef enum {
 } stepper_id;
 
 typedef enum {
+	CONTROLLER,
+	AUTONOMOUS
+} stepper_mode;
+
+typedef enum {
 	CW,		// Clock-Wise
-	CCW		// Counter Clock-Wise
+	CCW,		// Counter Clock-Wise
+	IDLE	// No direction
 } stepper_direction;
 
 typedef struct {
+	stepper_mode mode;
+
 	float MAX_ANGLE;			// Degrees
 	float STEP_ANGLE;			// Degrees
 	uint16_t STEPS_REV;			// Steps per revolution
@@ -45,6 +53,7 @@ extern volatile stepper steering_stepper;
 
 void configure_steppers();
 //void set_setpoint(const stepper_id stepper);
+void set_direction(const stepper_id stepper, int8_t direction);
 void set_setpoint(const stepper_id stepper, uint16_t setpoint, int8_t direction);
 
 /*

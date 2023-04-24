@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "CAN/can_tasks.h"
 #include "STEPPER/stepper.h"
 /* USER CODE END Includes */
 
@@ -157,6 +158,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  start_can_tasks();
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -316,7 +318,7 @@ static void MX_CAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
-
+  can_init();
   /* USER CODE END CAN1_Init 2 */
 
 }
@@ -591,7 +593,7 @@ void steering_task(void *argument)
 {
   /* USER CODE BEGIN steering_task */
   configure_steppers();
-  set_setpoint(STEERING, 400, CCW);
+  //set_setpoint(STEERING, 400, CCW);
   /* Infinite loop */
   for(;;)
   {
@@ -671,3 +673,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
