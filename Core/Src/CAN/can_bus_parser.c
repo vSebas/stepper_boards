@@ -17,20 +17,26 @@ void can_parse_msg(CAN_RxHeaderTypeDef *header, uint8_t *data){
 	if(data == NULL) return;
 
 	uint8_t id = can_parse_id(data, header->DLC);
-	if(id == AUTONOMOUS_STEERING){
-		// Frame byte structure: ID #STEPS1 #STEPS2 FREE DIR
+
+	if(id == STEPPERS_STATE){
+		// Frame byte structure: ID X X X STATE
+		uint32_t frame = can_parse_long(data, header->DLC);
+		uint8_t state = frame & 0x000000FF;
+		if(state == 1) // Start
+			start();
+		else
+			stop();
+	} else if(id == AUTONOMOUS_STEERING){
+		// Frame byte structure: ID #STEPS1 #STEPS2 X DIR
 		uint32_t frame = can_parse_long(data, header->DLC);
 		uint16_t steps = (frame & 0xFFFF0000) >> 16;
-		int8_t dir = frame & 0x000000FF;
-		can_rx_data.motor_1_steps = steps;
-		can_rx_data.motor_1_direction = dir;
+		uint8_t dir = frame & 0x000000FF;
 		set_setpoint(STEERING, steps, dir);
 	} else if(id == CONTROLLER_STEERING){
-		// Frame byte structure: ID #STEPS1 #STEPS2 FREE DIR
+		// Frame byte structure: ID X X X DIR
 		uint32_t frame = can_parse_long(data, header->DLC);
 		//uint16_t steps = (frame & 0xFFFF0000) >> 16;
-		int8_t dir = frame & 0x000000FF;
-		can_rx_data.motor_1_direction = dir;
+		uint8_t dir = frame & 0x000000FF;
 		set_direction(STEERING, dir);
 	} else if(id == ENCODER_ID_IFM){
 		//?

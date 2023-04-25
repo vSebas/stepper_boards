@@ -27,13 +27,15 @@ typedef enum {
 
 typedef enum {
 	CW,		// Clock-Wise
-	CCW,		// Counter Clock-Wise
+	CCW,	// Counter Clock-Wise
 	IDLE	// No direction
 } stepper_direction;
 
 typedef struct {
 	stepper_mode mode;
+	uint8_t active;
 
+	/*
 	float MAX_ANGLE;			// Degrees
 	float STEP_ANGLE;			// Degrees
 	uint16_t STEPS_REV;			// Steps per revolution
@@ -41,6 +43,7 @@ typedef struct {
 
 	float desired_angle;		// Degrees
 	float current_angle; 		// Degrees
+	*/
 
 	stepper_direction direction;
 
@@ -52,8 +55,9 @@ extern volatile stepper brake_stepper;
 extern volatile stepper steering_stepper;
 
 void configure_steppers();
-//void set_setpoint(const stepper_id stepper);
-void set_direction(const stepper_id stepper, int8_t direction);
+void start();
+void stop();
+void set_direction(const stepper_id stepper, uint8_t direction);
 void set_setpoint(const stepper_id stepper, uint16_t setpoint, int8_t direction);
 
 /*
