@@ -593,6 +593,7 @@ void steering_task(void *argument)
 {
   /* USER CODE BEGIN steering_task */
   configure_steppers();
+  start();
   //set_setpoint(STEERING, 400, CCW);
   /* Infinite loop */
   for(;;)

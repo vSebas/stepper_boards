@@ -34,6 +34,7 @@ typedef enum {
 typedef struct {
 	stepper_mode mode;
 	uint8_t active;
+	uint8_t exec_started;
 
 	/*
 	float MAX_ANGLE;			// Degrees
