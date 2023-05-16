@@ -32,6 +32,9 @@ void configure_steppers()
 	htim2.Instance->CCR1 = 500;	// For duty cycle of 50%
 	//HAL_GPIO_WritePin(GPIOA, DEBUG_2_Pin|DEBUG_1_Pin|STPR_PWM_1_Pin, GPIO_PIN_SET);
 
+	steering_stepper.direction = IDLE;
+	braking_stepper.direction = IDLE;
+
 }
 
 void start()
